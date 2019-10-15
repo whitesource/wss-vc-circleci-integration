@@ -1,0 +1,29 @@
+version: 2.1
+description: "The orb integrates Vulnerability Checker, a tool which checks your code against the top 50 open source vulnerabilities and gives a result in HTML file in artifacts"
+
+executors:
+  java:
+    description: The docker container to run java commands
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+jobs:
+  scan:
+    executor: java
+    parameters:
+      directory:
+        description: directory to scan.
+        type: string
+        default: "."
+    steps:
+      - checkout
+      - run:
+          command: |
+            curl -LJO https://vulnerability-checker.s3.amazonaws.com/release/partner/CircleCI/wss-vulnerability-checker-201909-Top250-Top50-CircleCI.zip
+            unzip wss-vulnerability-checker-201909-Top250-Top50-CircleCI.zip
+            ./vulnerability-checker.sh -d <<parameters.directory>>
+            mkdir -p /tmp/results
+            cp VulnerabilityCheckerReport.html /tmp/results
+            echo check artifacts for results
+      - store_artifacts:
+          path: /tmp/results
