@@ -32,7 +32,7 @@ Commit and push to view the scan results.
 In order to view the status, go to the CircleCI GUI and click on ‘jobs’. Click on the relevant job and verify that a ‘success’ message is displayed.
 
 | Parameter        | Description |Required  | Default Value | Type |
-| ------------- |:--------------------------------------------------------------------------------------------------------|-----:|-----:|-----:|
+| ------------- |:--------------------------------------------------------------------------------------------------------|:-----|:-----|:-----|
 | api_key   | Unique identifier of the organization. Can be retrieved from the admin page in your WhiteSource account. | Yes |No default value| String |
 | Directory      | Comma separated list of directories and / or files to scan.     |   Yes | . | String |
 | config_file_path | Configuration file name (including file path).     |   No | ./whitesource-fs-agent.config| String |
