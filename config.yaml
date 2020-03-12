@@ -1,5 +1,9 @@
 version: 2.1
-description: "The orb integrates Vulnerability Checker, a tool which checks your code against the top 50 open source vulnerabilities and gives a result in HTML file in artifacts"
+description: |
+  The orb integrates Vulnerability Checker, a tool which checks your code against the top 50 open source vulnerabilities and gives a result in HTML file in artifacts
+display:
+  source_url: https://github.com/whitesource/wss-vc-circleci-integration
+  home_url: https://www.whitesourcesoftware.com/
 
 executors:
   java:
