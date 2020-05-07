@@ -1,29 +1,50 @@
 version: 2.1
-description: "The orb integrates Vulnerability Checker, a tool which checks your code against the top 50 open source vulnerabilities and gives a result in HTML file in artifacts"
+description: "The orb integrates WhiteSource Unified Agent, a tool which extracts descriptive information from your open source libraries located on your file system. For more information: https://whitesource.atlassian.net/wiki/spaces/WD/pages/33718339/Unified+Agent"
+
+display:
+  home_url: https://www.whitesourcesoftware.com
+  source_url: https://github.com/whitesource/whitesource_orb
 
 executors:
   java:
     description: The docker container to run java commands
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: whitesourcesoftware/ua-base:v1
 
 jobs:
   scan:
     executor: java
     parameters:
+      api_key:
+        description: Unique identifier of the organization. Can be retrieved from the admin page in your WhiteSource account.
+        type: string
+        default: "${API_KEY}"
       directory:
-        description: directory to scan.
+        description: Comma separated list of directories and / or files to scan.
         type: string
         default: "."
+      config_file_path:
+        description: Configuration file name (including file path).
+        type: string
+        default: "whitesource-fs-agent.config"
+      commands_file_path:
+        description: install commands file (including file path) 
+        type: string
+        default: "install_commands.sh"
     steps:
       - checkout
       - run:
           command: |
-            curl -LJO https://vulnerability-checker.s3.amazonaws.com/release/partner/CircleCI/wss-vulnerability-checker-201909-Top250-Top50-CircleCI.zip
-            unzip wss-vulnerability-checker-201909-Top250-Top50-CircleCI.zip
-            ./vulnerability-checker.sh -d <<parameters.directory>>
-            mkdir -p /tmp/results
-            cp VulnerabilityCheckerReport.html /tmp/results
-            echo check artifacts for results
-      - store_artifacts:
-          path: /tmp/results
+            if [[ -z "<< parameters.api_key >>" ]]; then
+              echo "API_KEY has not been set, please set it up in the project environment variables since its mandatory"
+              exit 1
+            else
+                if [[ -f << parameters.commands_file_path >> ]]
+                then
+                    echo "Executing file: install_commands.sh"
+                    echo ""
+                    chmod +x << parameters.commands_file_path >>
+                    ./<< parameters.commands_file_path >>
+                fi
+                  bash <(curl -s -L https://raw.githubusercontent.com/whitesource/unified-agent-distribution/master/standAlone/wss_agent_orb.sh) -apiKey << parameters.api_key >> -c << parameters.config_file_path >> -d << parameters.directory >>
+            fi
